@@ -1,0 +1,19 @@
+Message Sending Flow:
+1. Sender makes request to node
+2. Request contains the message type, senders id, destination id
+3. The node looks at the senders id
+    a. look up the ledger for a corresponding public key
+    b. decrypts the message with the public key
+4. If the message can be decrypted
+    a. Look up destination id and find corresponding public key
+    b. Node checks if transaction with sender and destination allowed, through permissions or previous transactions
+    c. Node replies to sender with public key of destination
+5. Sender sends message (encrypted by public key of destination) to destination 
+    a. Destination decrypts with private key
+    b. Destination reads message
+
+Authentication
+1. Node gets the sender id
+2. Checks the ledger if sender Id is registered to Node network
+3. If not, no response
+4. If registered, the message is processed
