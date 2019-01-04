@@ -1,1 +1,1 @@
-# BlockNet
+# WiChain
