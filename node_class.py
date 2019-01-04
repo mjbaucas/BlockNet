@@ -64,8 +64,10 @@ class Node:
             if temp_list[0] not in self.whitelist:
                 print("ACCESS GRANTED: " + temp_list[0])
                 self.add_to_whitelist(temp_list[0], distance, dec["res_energy"])
+                return True
             else:
                 print("ACCESS REDUNDANT: " + temp_list[0])
+                return False
 
         elif dec["type"] == "send_data":
             if all(device in self.whitelist for device in [temp_list[0], dec["destination"]]) and not any(device in self.blacklist for device in [temp_list[0], dec["destination"]]): 
@@ -77,14 +79,17 @@ class Node:
                 # Assume that the maximum possible distance between the two devices is the actual distance
                 max_dist = dist_1 + dist_2
                 if max_dist > res_energy:
-                    print("REQUEST BLOCKED - ENERGY: " + temp_list[0])                    
+                    print("REQUEST BLOCKED - ENERGY: " + temp_list[0])  
+                    return False                  
                 print("TRANSACTION GRANTED: " + temp_list[0] + " to " + dec["destination"] )
+                return True
             else:
                 if temp_list[0] not in self.whitelist or temp_list[0] in self.blacklist:
                     print("REQUEST BLOCKED - SOURCE: " + temp_list[0])
+                    return False
                 if dec["destination"] not in self.whitelist or dec["destination"] in self.blacklist:
                     print("REQUEST BLOCKED - DESTINATION: " + dec["destination"])
-
+                    return False
     def get_distance(self, rssi):
         return math.pow(10, (float(self.tx_power - rssi)) / (10 * self.env_factor))
 
