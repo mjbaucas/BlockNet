@@ -1,21 +1,19 @@
 import hashlib
 import json
 import math
-from aes_cipher import AESCipher
+from rsa_cipher import RSACipher
 
 network_key = hashlib.sha256("Network0001".encode()).digest()
 
 class Node:
-    def __init__(self, private_key):
+    def __init__(self, serial_key):
+        self.cipher = RSACipher()
+        private_key, public_key, key = self.cipher.gen_keys(serial_key)
         self.private_key = private_key
-        self.public_key = hashlib.sha256(private_key.encode()).digest()
-        self.cipher = AESCipher()
+        self.public_key = public_key
+        self.key = key
+        
         self.ledger = {}
-        self.whitelist = {}
-        self.blacklist = []
-        self.tx_power = -69 # Measured Power Assumed
-        self.env_factor = 2 # Environmental Factor Assumed
-        self.jurisdiction = 20
         self.network_key = network_key
         # self.blockchain = []
     
@@ -42,17 +40,13 @@ class Node:
     def process_message(self, message):
         print message
         
-    def get_distance(self, rssi):
-        return math.pow(10, (float(self.tx_power - rssi)) / (10 * self.env_factor))
-
 class Device:
     def __init__(self, private_key, id):
-        self.id = id
+        self.cipher = RSACipher()
+        private_key, public_key, key = self.cipher.gen_keys(serial_key)
         self.private_key = private_key
-        self.public_key = hashlib.sha256(private_key.encode()).digest()
-        self.cipher = AESCipher()
-        self.node_key = ""
-        self.network_key = network_key
+        self.public_key = public_key
+        self.key = key
         # self.blockchain = []
     
     def is_granted_access(self):
@@ -71,11 +65,11 @@ class Device:
         if key:
             return self.cipher.decrypt(message, key)
         else:        
-            return self.cipher.decrypt(message,self.public_key)
+            return self.cipher.decrypt(message,self.private_key)
     
-    def dig_sign(self, message):
-        if self.cipher != None:
-            hashed_message = hashlib.sha256(message.encode()).digest()
-            return True, self.encrypt(hashed_message, self.private_key)
-        return False, ""
+    def sign(self, message, key):
+        if key:
+            return self.cipher.sign(message, key)
+        else:        
+            return self.cipher.sign(message,self.private_key)
         
