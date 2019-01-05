@@ -40,56 +40,8 @@ class Node:
         self.whitelist[device] = [distance, energy]
 
     def process_message(self, message):
-        temp_list = message.split("+9087+")
-        if len(temp_list) != 2:
-            print("MESSAGE BLOCKED - FORMAT")
-            return False
-        if not temp_list[0] in self.ledger:
-            print("MESSAGE BLOCKED - LEDGER: " + temp_list[0])
-            return False
-
-        pub_key = hashlib.sha256(self.ledger[temp_list[0]].encode()).digest()
-        dec = json.loads(self.decrypt(temp_list[1], pub_key))
-
-        distance = self.get_distance(dec["rssi"])
-        if distance > self.jurisdiction:
-            print("MESSAGE BLOCKED - DISTANCE: " + temp_list[0])
-            return False
-
-        if dec["type"] == "access":
-            if temp_list[0] in self.blacklist:
-                print("ACCESS BLOCKED - BLACK LIST: " + temp_list[0])
-                return False
-           
-            if temp_list[0] not in self.whitelist:
-                print("ACCESS GRANTED: " + temp_list[0])
-                self.add_to_whitelist(temp_list[0], distance, dec["res_energy"])
-                return True
-            else:
-                print("ACCESS REDUNDANT: " + temp_list[0])
-                return False
-
-        elif dec["type"] == "send_data":
-            if all(device in self.whitelist for device in [temp_list[0], dec["destination"]]) and not any(device in self.blacklist for device in [temp_list[0], dec["destination"]]): 
-                dist_1 = self.get_distance(dec["rssi"])
-                dist_2 = self.whitelist[dec["destination"]][0]
-                res_energy = self.whitelist[temp_list[0]][1]
-                
-                # Assume that every meter requires 1 unit of energy to send
-                # Assume that the maximum possible distance between the two devices is the actual distance
-                max_dist = dist_1 + dist_2
-                if max_dist > res_energy:
-                    print("REQUEST BLOCKED - ENERGY: " + temp_list[0])  
-                    return False                  
-                print("TRANSACTION GRANTED: " + temp_list[0] + " to " + dec["destination"] )
-                return True
-            else:
-                if temp_list[0] not in self.whitelist or temp_list[0] in self.blacklist:
-                    print("REQUEST BLOCKED - SOURCE: " + temp_list[0])
-                    return False
-                if dec["destination"] not in self.whitelist or dec["destination"] in self.blacklist:
-                    print("REQUEST BLOCKED - DESTINATION: " + dec["destination"])
-                    return False
+        print message
+        
     def get_distance(self, rssi):
         return math.pow(10, (float(self.tx_power - rssi)) / (10 * self.env_factor))
 
@@ -122,5 +74,8 @@ class Device:
             return self.cipher.decrypt(message,self.public_key)
     
     def dig_sign(self, message):
-        return self.id + "+9087+" + message
-
+        if self.cipher != None:
+            hashed_message = hashlib.sha256(message.encode()).digest()
+            return True, self.encrypt(hashed_message, self.private_key)
+        return False, ""
+        

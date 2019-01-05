@@ -17,12 +17,12 @@ print 'Listening on {}:{}'.format(bind_ip, bind_port)
 
 
 def handle_client_connection(client_socket):
-	while True:
-		request = client_socket.recv(1024)
-		if server_node.process_message(request):
-			client_socket.send('Access Granted')
-		else:
-			client_socket.send('Access Blocked')
+    while True:
+	request = client_socket.recv(1024)
+	if server_node.process_message(request):
+	    client_socket.send('Access Granted')
+	else:
+	    client_socket.send('Access Blocked')
 
 while True:
     client_sock, address = server.accept()
