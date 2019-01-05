@@ -13,6 +13,8 @@ class Node:
         self.public_key = public_key
         self.key = key
         
+        print public_key
+        print private_key
         self.ledger = {}
         self.network_key = network_key
         # self.blockchain = []
@@ -41,7 +43,7 @@ class Node:
         print message
         
 class Device:
-    def __init__(self, private_key, id):
+    def __init__(self, serial_key, id):
         self.cipher = RSACipher()
         private_key, public_key, key = self.cipher.gen_keys(serial_key)
         self.private_key = private_key

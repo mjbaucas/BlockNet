@@ -7,20 +7,17 @@ class RSACipher:
 		self.base = 2048
 		self.rand = Random.new().read
 		
-	def gen_keys(self, serial_key):
-		key = RSA.generate(self.base, serial_key)
-		private_key = key.export_key()
-		
-		public_key = key.public_key().export_key()
-		return private_key, public_key, key
+	def gen_key(self):
+		key = RSA.generate(self.base)
+		return key
 	
 	def encrypt(self, public_key, data):
 		if public_key.can_encrypt() and public_key.has_private():
 			return True, public_key.encrypt(data, 32)
 		return False, ''
 	
-	def decrypt(self, private_key, data):
-		return private_key.decrypt(data)
+	def decrypt(self, key, data):
+		return key.decrypt(data)
 		
 	def sign(self, key, data):
 		hash_data = SHA256.new(data.encode()).digest()
