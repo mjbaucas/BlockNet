@@ -9,6 +9,10 @@ server_node = Node("NoDe0001")
 bind_ip = '192.168.0.103'
 bind_port = 9999
 
+mess = server_node.encrypt("NoDe0001", "Hello World")
+print mess
+print server_node.decrypt(mess)
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((bind_ip, bind_port))
 server.listen(5)  # max backlog of connections
