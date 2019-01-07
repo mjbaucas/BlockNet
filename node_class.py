@@ -5,9 +5,9 @@ import hashlib
 from custom_cipher import CustomCipher
 
 class Node:
-    def __init__(self, serial_key):
+    def __init__(self, serial_key, key_file):
         self.cipher = CustomCipher()
-        key, public_key, secret_key = self.cipher.gen_keys(serial_key)
+        key, public_key, secret_key = self.cipher.init_keys(serial_key, key_file)
         self.secret_key = secret_key
         self.public_key = public_key
         self.key = key

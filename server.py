@@ -4,7 +4,7 @@ import threading
 from node_class import Node, Device
 
 node_private_key = "NoDe0001"
-server_node = Node("NoDe0001")
+server_node = Node("NoDe0001", "server-private.pem")
 
 bind_ip = '192.168.0.103'
 bind_port = 9999
@@ -33,6 +33,6 @@ while True:
     print 'Accepted connection from {}:{}'.format(address[0], address[1])
     client_handler = threading.Thread(
         target=handle_client_connection,
-        args=(client_sock,)  # without comma you'd get a... TypeError: handle_client_connection() argument after * must be a sequence, not _socketobject
+        args=(client_sock,)  
     )
     client_handler.start()
