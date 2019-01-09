@@ -1,7 +1,6 @@
 import hashlib
 
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 
 from aes_cipher import AESCipher
 from rsa_cipher import RSACipher
@@ -16,7 +15,6 @@ class CustomCipher:
 		key = RSA.importKey(open(key_file, "rb"))
 		
 		public_key = key.publickey().exportKey('PEM')
-		private_key = key.exportKey('PEM')
 							
 		secret_key = hashlib.sha256(secret_key.encode()).digest()
 		public_key = self.aes_cipher.encrypt(public_key, secret_key)
@@ -41,11 +39,13 @@ class CustomCipher:
 		
 	def encrypt(self, public_key, secret_key, message):
 		dec_public_key = self.aes_cipher.decrypt(public_key, secret_key)
-		key = RSA.importKey(dec_public_key) 
-		return key.encrypt(message, 'x')
+		key = RSA.importKey(dec_public_key)
+		result, encrypted = self.rsa_cipher.encrypt(key, message)
+		return encrypted
 
 	def decrypt(self, enc_message, key):
-		return self.rsa_cipher.decrypt(key, enc_message)
+		result, decrypted = self.rsa_cipher.decrypt(key, enc_message)
+		return decrypted
 		
 	def sign(self, key, data):
 		return self.rsa_cipher.sign(key, data)
