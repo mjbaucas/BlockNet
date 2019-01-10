@@ -18,7 +18,12 @@ print 'Listening on {}:{}'.format(bind_ip, bind_port)
 def handle_client_connection(client_socket):
     while True:
 	request = client_socket.recv(4096)
-	print server_node.read_message(request)
+	message = server_node.read_message(request)
+	print(message)
+	if message is not None:
+	    response = server_node.process_message(message)
+	    if response is not None:
+		client_socket.send(response)
 
 while True:
     client_sock, address = server.accept()

@@ -13,9 +13,9 @@ device_one.pair_device("NoDe0001", "server-public.pem")
 while 1:
 	userInput = raw_input("")
 	
-	data = json.dumps({"type": "access", "id": "Device0001"})
+	data = json.dumps({"type": "access", "serial": "Device0001"})
 	message = device_one.process_network_message(data)
 	if message is not None:
 		client.send(message);
 		response = client.recv(4096)
-		print response
+		print device_one.read_network_message(response)

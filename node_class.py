@@ -3,6 +3,7 @@ import json
 import math
 import hashlib
 import base64
+import ast
 
 from custom_cipher import CustomCipher
 
@@ -18,6 +19,7 @@ class Node:
         key, public_key, secret_key = self.cipher.init_keys(serial_key, key_file)
         self.secret_key = secret_key
         self.public_key = public_key
+        self.serial_key = serial_key
         self.key = key
         
         #print public_key
@@ -42,8 +44,28 @@ class Node:
             return self.cipher.encrypt(public_key, secret_key, message)
 
     def process_message(self, message):
-        print message
+        message = ast.literal_eval(message)
+        if all(x in message for x in ["type", "serial"]):
+            if message["type"] == "access":
+                return self.process_access_message(message["serial"])
+        return None
+    
+    def sign(self, key, data):
+        signature = self.cipher.sign(key, data)
+        return signature
         
+    def process_access_message(self, serial):
+        aes_cipher = AESCipher()
+        
+        if serial in self.ledger:
+            data = json.dumps({"type": "response", "serial": self.serial_key, "status": "approved"})
+            signature = self.sign(self.key, data)
+            enc_data = aes_cipher.encrypt(data, hashlib.sha256(self.serial_key.encode()).digest())
+            message = json.dumps({"message": enc_data, "signature": signature, "serial": self.serial_key})
+            enc_message = self.encrypt(serial, message)
+            return enc_message
+        return None
+    
     def read_message(self, message):
         aes_cipher = AESCipher()
         
@@ -92,9 +114,6 @@ class Device:
         signature = self.cipher.sign(key, data)
         return signature
         
-    def verify(self, data, signature):
-        return self.cipher.verify(self.public_key, self.secret_key, data, signature)
-
     def process_network_message(self, data):
         aes_cipher = AESCipher()
                 
@@ -106,15 +125,16 @@ class Device:
             return enc_message
         return None
     
-    def read_message(self, message):
+    def read_network_message(self, message):
         aes_cipher = AESCipher()
         
         if self.is_paired:
             message = self.decrypt(message, self.key)
+            message = ast.literal_eval(message)
             if all(x in message for x in ["message", "signature", "serial"]):
-                data = message["message"]
+                serial = hashlib.sha256(message['serial'].encode()).digest()
+                data = aes_cipher.decrypt(message["message"], serial)
                 signature = message["signature"]
-                if self.verify(data, signature):
-                    print aes_cipher.decrypt(message, self.public_key)
-                    return "YES"
+                if self.cipher.verify(self.network_public_key, serial, data, signature):
+                    return data
         return None
