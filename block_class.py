@@ -25,3 +25,7 @@ class Block:
         print('Index: {}'.format(self.index))
         print('Timestamp: {}'.format(self.timestamp))
         print('Public Key: {}'.format(self.public_key))
+        
+        print('Transactions:')
+        for transaction in self.transactions:
+            transaction.display_details()
