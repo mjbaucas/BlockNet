@@ -1,1 +1,2 @@
 # WiChain
+An IoT access layer implementation and simulator. This project includes the usage of RSA, AES and hashing techniques to protect access level communication between a basic server-client model. The model communicates through a serial port that is defined in a wireless network. A basic blockchain implementation is used as the main data structure that keeps track of the access level of each registered device in the network. 
