@@ -29,3 +29,6 @@ class Block:
         print('Transactions:')
         for transaction in self.transactions:
             transaction.display_details()
+
+    def get_block_transactions(self):
+        return self.transactions

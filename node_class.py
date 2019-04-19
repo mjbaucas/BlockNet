@@ -6,8 +6,10 @@ import base64
 import ast
 
 from custom_cipher import CustomCipher
+from chain_class import Chain
 
 from Crypto.PublicKey import RSA
+
 
 # Temporary Ledger initialization
 from aes_cipher import AESCipher
@@ -25,18 +27,17 @@ class Node:
         #print public_key
         #print secret_key
         
-        # Temporary Ledger initialization
+        # Ledger initialization
         aes_cipher = AESCipher()
         
         dev1_serial = "Device0001"
         dev1_serial_hash = hashlib.sha256(dev1_serial.encode()).digest()
         dev1_pub = aes_cipher.encrypt(RSA.importKey(open("device1-public.pem", "rb")).exportKey('PEM'), dev1_serial_hash)
         
-        self.ledger = {
-            dev1_serial: dev1_pub
-        }
-        # self.blockchain = []
-    
+        self.blockchain = Chain()
+        self.blockchain.gen_next_block(hashlib.sha256("DeviceAccessBlock1".encode()).digest(), [{"Serial": dev1_serial, "PubKey": dev1_pub}])
+        self.ledger = self.blockchain.output_ledger()
+        
     def encrypt(self, serial, message):
         if serial in self.ledger:
             public_key = self.ledger[serial]
